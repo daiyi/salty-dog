@@ -21,13 +21,14 @@ var DARK_TEAL = 0x007470;
 var ORANGE = 0xFF933D;
 
 var SCALE = 80;
-var SPEED = 100;
+var SPEED = 300;  // movement tweening in ms
 
+// TODO organise these into objects
 var graphics, walls, player, cursors;
 var maze = data['grid'];
 var playerGrid = {'x': 0, 'y': 0};
 var status = true; // false = gameover
-var lastTimestep = null;
+var lastTimestep = null, stationary = true;
 // debug
 var savePlayerGrid = savePlayer = null;
 
@@ -74,30 +75,36 @@ function create() {
 function update() {
   if (status) {
     debug();
-    if (lastTimestep != null) {
-      // var step = min();
+
+    if (stationary) {
+      if (cursors.left.isDown && playerGrid.x > 0 && maze[playerGrid.y][playerGrid.x-1] != 1) {
+        move({x: player.x - SCALE, y: player.y});
+        playerGrid.x -= 1;
+      }
+      else if (cursors.right.isDown && playerGrid.x < maze.length-1  && maze[playerGrid.y][playerGrid.x+1] != 1) {
+        move({x: player.x + SCALE, y: player.y});
+        playerGrid.x += 1;
+      }
+      else if (cursors.up.isDown && playerGrid.y > 0  && maze[playerGrid.y-1][playerGrid.x] != 1) {
+        move({x: player.x, y: player.y - SCALE});
+        playerGrid.y -= 1;
+      }
+      else if (cursors.down.isDown && playerGrid.y < maze.length-1  && maze[playerGrid.y+1][playerGrid.x] != 1) {
+        move({x: player.x, y: player.y + SCALE});
+        playerGrid.y += 1;
+      }
     }
 
-    if (cursors.left.isDown && playerGrid.x > 0 && maze[playerGrid.y][playerGrid.x-1] != 1) {
-      playerGrid.x -= 1;
-      player.x -= SCALE;
-    }
-    else if (cursors.right.isDown && playerGrid.x < maze.length-1  && maze[playerGrid.y][playerGrid.x+1] != 1) {
-      playerGrid.x += 1;
-      player.x += SCALE;
-    }
-    else if (cursors.up.isDown && playerGrid.y > 0  && maze[playerGrid.y-1][playerGrid.x] != 1) {
-      playerGrid.y -= 1;
-      player.y -= SCALE;
-    }
-    else if (cursors.down.isDown && playerGrid.y < maze.length-1  && maze[playerGrid.y+1][playerGrid.x] != 1) {
-      playerGrid.y += 1;
-      player.y += SCALE;
-    }
   }
   else {
     // game over
   }
+}
+
+function move(destination) {
+  console.log(player.x, player.y);
+  stationary = false;
+  game.add.tween(player).to(destination, SPEED, Phaser.Easing.Quadratic.InOut,  true).onComplete.add(function() { stationary = true;}, this);
 }
 
 function debug() {
