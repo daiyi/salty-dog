@@ -21,9 +21,15 @@ var DARK_TEAL = 0x007470;
 var ORANGE = 0xFF933D;
 
 var SCALE = 80;
+var SPEED = 100;
+
 var graphics, walls, player, cursors;
 var maze = data['grid'];
 var playerGrid = {'x': 0, 'y': 0};
+var status = true; // false = gameover
+var lastTimestep = null;
+// debug
+var savePlayerGrid = savePlayer = null;
 
 var game = new Phaser.Game(SCALE * maze.length, SCALE * maze[0].length, Phaser.AUTO, 'game', { preload: preload, create: create, update: update });
 
@@ -50,8 +56,6 @@ function create() {
         wall.scale.setTo(SCALE/wall.width, SCALE/wall.height);
       }
       else if (gridX == 0 && !player) {
-        console.log("x= ", gridX);
-        console.log(gridY);
         player = game.add.sprite(gridX * SCALE, gridY * SCALE, 'salty');
         player.scale.setTo(SCALE/player.width, SCALE/player.height);
         player.anchor.setTo(0, 0);
@@ -68,17 +72,54 @@ function create() {
 }
 
 function update() {
+  if (status) {
+    debug();
+    if (lastTimestep != null) {
+      // var step = min();
+    }
 
-  if (cursors.left.isDown) {
-    player.x -= 4;
+    if (cursors.left.isDown && playerGrid.x > 0 && maze[playerGrid.y][playerGrid.x-1] != 1) {
+      playerGrid.x -= 1;
+      player.x -= SCALE;
+    }
+    else if (cursors.right.isDown && playerGrid.x < maze.length-1  && maze[playerGrid.y][playerGrid.x+1] != 1) {
+      playerGrid.x += 1;
+      player.x += SCALE;
+    }
+    else if (cursors.up.isDown && playerGrid.y > 0  && maze[playerGrid.y-1][playerGrid.x] != 1) {
+      playerGrid.y -= 1;
+      player.y -= SCALE;
+    }
+    else if (cursors.down.isDown && playerGrid.y < maze.length-1  && maze[playerGrid.y+1][playerGrid.x] != 1) {
+      playerGrid.y += 1;
+      player.y += SCALE;
+    }
   }
-  else if (cursors.right.isDown) {
-    player.x += 4;
+  else {
+    // game over
   }
-  else if (cursors.up.isDown) {
-    player.y -= 4;
+}
+
+function debug() {
+  if (savePlayerGrid === null) {
+    savePlayerGrid = playerGrid;
   }
-  else if (cursors.down.isDown) {
-    player.y += 4;
+  else {
+    // console.log("savePlayerGrid ", savePlayerGrid.x);
+  }
+  if (savePlayer === null) {
+    savePlayer = player;
+  }
+  else {
+    // console.log("playerGrid ", playerGrid.x);
+  }
+
+  if (playerGrid.x != savePlayerGrid.x || playerGrid.y != savePlayerGrid.y) {
+    console.log("playerGrid = ", playerGrid.x, " ", playerGrid.y);
+    savePlayerGrid = playerGrid;
+  }
+  if (player.x != savePlayer.x || player.y != savePlayer.y) {
+    console.log("player = ", player.x, " ", player.y);
+    savePlayer = player;
   }
 }
