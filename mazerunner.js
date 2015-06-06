@@ -178,7 +178,7 @@ MazeGame.prototype.check = function (direction, val) {
       break;
   }
   if (val !== undefined) {
-    return (0 < x) && (x < this.grid.length) && (0 < y) && (y < this.grid.length) && (this.grid[y][x] === val);
+    return (0 <= x) && (x < this.grid.length) && (0 <= y) && (y < this.grid.length) && (this.grid[y][x] === val);
   }
   return (0 < x) && (x < this.grid.length) && (0 < y) && (y < this.grid.length);
 };
