@@ -3,9 +3,27 @@ body {
 }
 .container {
   margin: 20px auto;
-  width: 800px;
+  width: 720px;
 }
 
 h1 {
   text-align: center;
+}
+
+button {
+  -webkit-border-radius: 1;
+  -moz-border-radius: 1;
+  border-radius: 1px;
+  border: 0;
+  font-family: Courier New;
+  color: #ffffff;
+  font-size: 24px;
+  background: #28AFAA;
+  padding: 10px 20px 10px 20px;
+  text-decoration: none;
+}
+
+button:hover {
+  background: #FF933D;
+  text-decoration: none;
 }
