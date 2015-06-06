@@ -31,10 +31,6 @@ function MazeGame(grid) {
       this.game.load.image('salty', 'assets/salty.png');
       // this.load.image('rock', 'assets/rock.png');
       this.game.load.spritesheet('rock', 'assets/rock.png', 100,100,2);
-      this.addEvent(document.querySelector('#btn-run'), 'click', this.runMaze);
-      this.addEvent(document.querySelector('#btn-restart'), 'click', this.restart);
-      // this.addEvent(document.querySelector('#btn-theme-rocks'), 'click', this.setTheme(this.walls, 0));
-      // this.addEvent(document.querySelector('#btn-theme-rocks2'), 'click', this.setTheme(this.walls, 1));
   }.bind(this);
 
   this.create = function () {
@@ -64,6 +60,11 @@ function MazeGame(grid) {
 
     //  keyboard controls
     this.cursors = this.game.input.keyboard.createCursorKeys();
+    
+    this.addEvent(document.querySelector('#btn-run'), 'click', this.runMaze);
+    this.addEvent(document.querySelector('#btn-restart'), 'click', this.restart);
+    this.addEvent(document.querySelector('#btn-theme-rocks'), 'click', this.setTheme(this.walls, 0));
+    this.addEvent(document.querySelector('#btn-theme-rocks2'), 'click', this.setTheme(this.walls, 1));
   }.bind(this);
 
   this.update = function () {
@@ -127,11 +128,12 @@ function MazeGame(grid) {
     }
   }.bind(this);
 
-  // this.setTheme = function (group, frameNumber) {
-  //   group.children.forEach(function(sprite){
-  //     sprite.frame = frameNumber;
-  //   });
-  // }.bind(this);
+  this.setTheme = function (group, frameNumber) {
+    return function() {group.children.forEach(function(sprite){
+        sprite.frame = frameNumber;
+      });
+    };
+  }.bind(this);
 
   this.mazeToGraph = function (maze) {
     var start = new Coordinate(null, null);
