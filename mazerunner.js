@@ -61,11 +61,10 @@ function MazeGame(grid) {
     //  keyboard controls
     this.cursors = this.game.input.keyboard.createCursorKeys();
 
-    this.addEvent(document.querySelector('#btn-run'), 'click', this.runMaze);
+    this.addEvent(document.querySelector('#btn-optimum-path'), 'click', this.optimumPath);
     this.addEvent(document.querySelector('#btn-restart'), 'click', this.restart);
     this.addEvent(document.querySelector('#btn-theme-rocks'), 'click', this.setTheme(this.walls, 0));
     this.addEvent(document.querySelector('#btn-theme-rocks2'), 'click', this.setTheme(this.walls, 1));
-    this.addEvent(document.querySelector('#btn-optimum-path'), 'click', this.optimumPath);
   }.bind(this);
 
   this.update = function() {
@@ -107,17 +106,27 @@ function MazeGame(grid) {
         this.player.location = this.player.location.sum(Coordinate.prototype.direction.right);
         break;
     }
-    coord = this.player.location;
+    var coord = this.player.location;
     console.log(this.player.sprite.x, this.player.sprite.y);
     this.player.isMoving = true;
-
-    this.game.add.tween(this.player.sprite).to({'x': coord.x * this.SCALE, 'y': coord.y * this.SCALE}, this.SPEED, Phaser.Easing.Quadratic.InOut,  true).onComplete.add(function() { this.player.isMoving = false;}, this);
+    this.tweenPlayer(coord);
   };
 
-  this.runMaze = function() {
-    console.log('RUNNING MAZE');
-    // path = [new Coordinate(1,8), new Coordinate(1,7), new Coordinate(1,6)];
+  this.tweenPlayer = function (coord) {
+      this.game.add.tween(this.player.sprite).to({'x': coord.x * this.SCALE, 'y': coord.y * this.SCALE}, this.SPEED, Phaser.Easing.Quadratic.InOut,  true).onComplete.add(function() { this.player.isMoving = false;}, this);
+  }
 
+  this.runMaze = function(path) {
+    console.log('RUNNING MAZE');
+    this.player.isMoving = true;
+    var sprite = this.game.add.tween(this.player.sprite);
+    for (var i = path.length-1; i >= 0; i--) {
+      sprite.to({'x':path[i].x * this.SCALE, 'y': path[i].y * this.SCALE}, this.SPEED, Phaser.Easing.Quadratic.InOut);
+    }
+    sprite.start().onComplete.add(function() {
+      this.player.isMoving = false;
+      this.isPlaying = false;
+    }, this);
   };
 
   this.restart = function() {
@@ -126,6 +135,7 @@ function MazeGame(grid) {
       this.player.sprite.y = this.player.startLocation.y * this.SCALE;
       this.player.location.x = this.player.startLocation.x;
       this.player.location.y = this.player.startLocation.y;
+      this.isPlaying = true;
     }
   }.bind(this);
 
@@ -137,7 +147,8 @@ function MazeGame(grid) {
   };
 
   this.optimumPath = function() {
-    this.calculatePath();
+    var path = this.calculatePath();
+    this.runMaze(path);
   }.bind(this);
 
   this.calculatePath = function() {
@@ -161,7 +172,6 @@ function MazeGame(grid) {
       var copy = subarray.slice(0);
       discovered.push(copy);
     }
-    console.log(discovered);
 
     // initially coords neighboring 'start' node
     var gridNeighbors = [];
@@ -176,17 +186,18 @@ function MazeGame(grid) {
       }
     }
 
-    var x=0
     //Traverse the graph depth-first, discovering neighbors as we crawl.
     while (toCheck.length > 0) {
-      console.log('START LOOP ' + x + '. toCheck queue: ', toCheck);
-      x++;
       // minPathNode is the current shortest path to source
+      console.log('prevMinPathNode', minPathNode);
       var prevMinPathNode = minPathNode;
       minPathNode = toCheck.reduce(function(previousValue, currentValue) {
+        // deal with the case of inspecting 'finish' node
+        if (currentValue.distanceToSource = null) {
+          return previousValue;
+        }
         return currentValue.distanceToSource < previousValue.distanceToSource ? currentValue : previousValue;
       }, toCheck[0]);
-      console.log('minPathNode', minPathNode);
       if (minPathNode == finish) {
         finish.prev = prevMinPathNode;
         break;
@@ -197,23 +208,21 @@ function MazeGame(grid) {
 
       if (minPathNode != start) {
         var gridNeighbors = this.getNeighbors(minPathNode.coord, 0);
-        console.log('getting grid neighbors:', gridNeighbors);
       }
 
       // add undiscovered grid coordinates into graph as dNodes
       gridNeighbors.forEach(function(coord) {
         if (discovered[coord.x][coord.y] === false) {
-          console.log('found coordinate:', coord);
           var neighborNode = new DNode(coord);
           minPathNode.neighbors.add(neighborNode);
           neighborNode.neighbors.add(minPathNode);
           discovered[coord.x][coord.y] = true;
 
-          console.log('pushing to toCheck:', neighborNode);
           toCheck.push(neighborNode);
 
           // connect to finish node if on the rightmost column of maze
           if (coord.x == maze.length-1) {
+            console.log('create finish now!!', coord);
             if (finish == undefined) {
               finish = new DNode(null);
               toCheck.push(finish);
@@ -233,10 +242,9 @@ function MazeGame(grid) {
           }
         }
       });
-
-      console.log('END LOOP. toCheck:', toCheck);
     }
-
+    console.log('neighbors');
+    console.log(finish.neighbors);
     var node = finish;
     while (node.prev.coord != start.coord) {
       path.push(node.prev.coord);
