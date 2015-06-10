@@ -28,9 +28,10 @@ function MazeGame(grid) {
   this.isPlaying = true;
 
   this.preload = function() {
-      this.game.load.image('salty', 'assets/salty.png');
+      // this.game.load.image('salty', 'assets/salty.png');
+      this.game.load.spritesheet('salty', 'assets/salty_sheet.png', 300, 300, 2);
       // this.load.image('rock', 'assets/rock.png');
-      this.game.load.spritesheet('rock', 'assets/rock.png', 100,100,2);
+      this.game.load.spritesheet('rock', 'assets/rock_sheet.png', 212, 212, 2);
   }.bind(this);
 
   this.create = function() {
@@ -50,6 +51,8 @@ function MazeGame(grid) {
         }
         else if (x == 0 && this.player.sprite === undefined) {
           this.player.sprite = this.game.add.sprite(x * this.SCALE, y * this.SCALE, 'salty');
+          this.player.sprite.animations.add('swim', [0, 1], 2, true);
+          this.player.sprite.animations.play('swim');
           this.player.sprite.scale.setTo(this.SCALE/this.player.sprite.width, this.SCALE/this.player.sprite.height);
           this.player.sprite.anchor.setTo(0, 0);
           this.player.startLocation = new Coordinate(x, y);
