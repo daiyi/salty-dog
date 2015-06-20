@@ -125,7 +125,6 @@ function MazeGame(grid) {
         break;
     }
     var coord = this.player.location;
-    console.log(this.player.sprite.x, this.player.sprite.y);
     this.player.isMoving = true;
     this.tweenPlayer(coord);
   };
@@ -157,16 +156,12 @@ function MazeGame(grid) {
     }.bind(this);
 
     this.isPlaying = false;
-
     this.game.time.events.add(1000, finishingAnimation, this);
-
-    console.log(offMapLocation);
   };
 
   this.restart = function() {
     console.log('restarting game');
     if (this.player.startLocation != undefined) {
-      console.log('setting up player..');
       this.player.sprite.animations.stop();
       this.player.sprite.frame = 0;
       this.player.sprite.x = this.player.startLocation.x * this.SCALE;
@@ -229,7 +224,6 @@ function MazeGame(grid) {
     //Traverse the graph depth-first, discovering neighbors as we crawl.
     while (toCheck.length > 0) {
       // minPathNode is the current shortest path to source
-      console.log('prevMinPathNode', minPathNode);
       var prevMinPathNode = minPathNode;
       minPathNode = toCheck.reduce(function(previousValue, currentValue) {
         // deal with the case of inspecting 'finish' node
@@ -262,7 +256,6 @@ function MazeGame(grid) {
 
           // connect to finish node if on the rightmost column of maze
           if (coord.x == maze.length-1) {
-            console.log('create finish now!!', coord);
             if (finish == undefined) {
               finish = new DNode(null);
               toCheck.push(finish);
@@ -283,14 +276,12 @@ function MazeGame(grid) {
         }
       });
     }
-    console.log('neighbors');
-    console.log(finish.neighbors);
     var node = finish;
     while (node.prev.coord != start.coord) {
       path.push(node.prev.coord);
       node = node.prev;
     }
-    console.log(path);
+    console.log("optimum path: ", path);
     return path;
   }
 
