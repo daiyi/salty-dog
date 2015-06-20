@@ -149,30 +149,33 @@ function MazeGame(grid) {
   };
 
   this.finishGame = function() {
-    var offMapLocation = new Coordinate(this.path[0].x+1, this.path[0].y);
-    var timer = this.game.time.create(1000, false);
+    // var offMapLocation = new Coordinate(this.path[0].x+1, this.path[0].y);
+    var offMapLocation = this.path[0].sum(Coordinate.prototype.direction.right);
     var finishingAnimation = function() {
       this.game.add.tween(this.ship).to({'x': offMapLocation.x * this.SCALE, 'y': offMapLocation.y * this.SCALE}, this.SPEED*3, Phaser.Easing.Quadratic.InOut, true);
-      this.player.sprite.destroy();
+      this.player.sprite.visible = false;
     }.bind(this);
 
     this.isPlaying = false;
 
-    timer.add(2000);
-    timer.onComplete.add(finishingAnimation, this);
+    this.game.time.events.add(1000, finishingAnimation, this);
 
     console.log(offMapLocation);
-    timer.start();
   };
 
   this.restart = function() {
+    console.log('restarting game');
     if (this.player.startLocation != undefined) {
-      this.player.sprite.x = this.player.startLocation.x * this.SCALE;
-      this.player.sprite.y = this.player.startLocation.y * this.SCALE;
+      console.log('setting up player..');
       this.player.sprite.animations.stop();
       this.player.sprite.frame = 0;
+      this.player.sprite.x = this.player.startLocation.x * this.SCALE;
+      this.player.sprite.y = this.player.startLocation.y * this.SCALE;
+      this.player.sprite.visible = true;
       this.player.location.x = this.player.startLocation.x;
       this.player.location.y = this.player.startLocation.y;
+      this.ship.x = this.path[0].x * this.SCALE;
+      this.ship.y = this.path[0].y * this.SCALE;
       this.isPlaying = true;
     }
   }.bind(this);
